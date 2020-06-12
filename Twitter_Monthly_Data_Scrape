@@ -1,19 +1,27 @@
-# API keys and tokens in IDE
-
 import tweepy as tw
-auth = tw.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
-api = tw.API(auth, wait_on_rate_limit=True)
+import os
+import nltk
+import re
+from nltk.tokenize import word_tokenize
+from string import punctuation
+from nltk.corpus import stopwords
 
+####API Keys in IDE 
+
+auth = tw.OAuthHandler(api_key, api_secret)
+auth.set_access_token(access_token_key, access_token_secret)
+api = tw.API(auth, wait_on_rate_limit=True)
 try:
     api.verify_credentials()
     print("Authentication OK")
 except:
     print("Error during authentication")
-
 search_words = 'travel' or 'holiday' or 'travel abroad' and 'covid' or 'pandemic' or 'covid-19' or 'rona' or 'coronavirus'
 lang='en'
 result_type='mixed'
+
+def remove_url(txt):
+    return " ".join(re.sub("([^0-9A-Za-z \t])|(\w+:\/\/\S+)", "", txt).split())
 ## geocode = "51.5074,0.1278,100km" - geocode currently doesn't work - causes no tweets to be returned. this value here should work for London
 # Maybe take out these variables for running them for different months
 
@@ -25,8 +33,10 @@ january_tweets = tw.Cursor(api.search,
               since="2020-01-02",
               max="2020-02-01").items(200)
 
-for tweet in january_tweets:
-    print(tweet.text)
+jan_tweets_no_urls = [remove_url(tweet.text) for tweet in january_tweets]
+with open ('tweets.txt', 'a') as tweets_file:
+    for single_tweet in jan_tweets_no_urls:
+        tweets_file.write("%s\n" % single_tweet)
 
 february_tweets = tw.Cursor(api.search,
               q=search_words,
@@ -36,8 +46,11 @@ february_tweets = tw.Cursor(api.search,
               since="2020-02-02",
               max="2020-03-01").items(200)
 
-for tweet in february_tweets:
-    print(tweet.text)
+feb_tweets_no_urls = [remove_url(tweet.text) for tweet in february_tweets]
+
+with open ('tweets.txt', 'a') as tweets_file:
+    for single_tweet in feb_tweets_no_urls:
+        tweets_file.write("%s\n" % single_tweet)
 
 march_tweets = tw.Cursor(api.search,
               q=search_words,
@@ -47,9 +60,10 @@ march_tweets = tw.Cursor(api.search,
               since="2020-03-02",
               max="2020-04-01").items(200)
 
-for tweet in march_tweets:
-    print(tweet.text)
-
+mar_tweets_no_urls = [remove_url(tweet.text) for tweet in march_tweets]
+with open ('tweets.txt', 'a') as tweets_file:
+    for single_tweet in mar_tweets_no_urls:
+        tweets_file.write("%s\n" % single_tweet)
 
 april_tweets = tw.Cursor(api.search,
               q=search_words,
@@ -59,8 +73,10 @@ april_tweets = tw.Cursor(api.search,
               since="2020-04-02",
               max="2020-05-01").items(200)
 
-for tweet in april_tweets:
-    print(tweet.text)
+apr_tweets_no_urls = [remove_url(tweet.text) for tweet in april_tweets]
+with open ('tweets.txt', 'a') as tweets_file:
+    for single_tweet in apr_tweets_no_urls:
+        tweets_file.write("%s\n" % single_tweet)
 
 may_tweets = tw.Cursor(api.search,
               q=search_words,
@@ -70,5 +86,61 @@ may_tweets = tw.Cursor(api.search,
               since="2020-05-02",
               max="20-06-01").items(200)
 
-for tweet in may_tweets:
-    print(tweet.text)
+may_tweets_no_urls = [remove_url(tweet.text) for tweet in may_tweets]
+with open ('tweets.txt', 'a') as tweets_file:
+    for single_tweet in may_tweets_no_urls:
+        tweets_file.write("%s\n" % single_tweet)
+
+from textblob import TextBlob
+
+## Generating sentiment scores for January
+jan_textblob = TextBlob(str(jan_tweets_no_urls))
+
+jan_polarity_score = jan_textblob.sentiment.polarity
+jan_subjectivity_score = jan_textblob.sentiment.subjectivity
+
+print("the January polarity score is: {}".format(jan_polarity_score))
+print("the January subjectivity_score is: {}.".format(jan_subjectivity_score))
+
+## Generating sentiment scores for February
+feb_textblob = TextBlob(str(feb_tweets_no_urls))
+
+feb_polarity_score = feb_textblob.sentiment.polarity
+feb_subjectivity_score = feb_textblob.sentiment.subjectivity
+
+print("the February polarity score is: {}".format(feb_polarity_score))
+print("the February subjectivity score is: {}".format(feb_subjectivity_score))
+
+## Generating sentiment scores for March
+mar_textblob = TextBlob(str(mar_tweets_no_urls))
+
+mar_polarity_score = mar_textblob.sentiment.polarity
+mar_subjectivity_score = mar_textblob.sentiment.subjectivity
+
+print("the March polarity score is: {}".format(mar_polarity_score))
+print("The March subjectivity score is: {}".format(mar_subjectivity_score))
+
+## Generating sentiment scores for April
+apr_textblob = TextBlob(str(apr_tweets_no_urls))
+
+apr_polarity_score = apr_textblob.sentiment.polarity
+apr_subjectivity_score = apr_textblob.sentiment.subjectivity
+
+print("The April polarity score is: {}".format(apr_polarity_score))
+print("The April subjectivity score is: {}".format(apr_subjectivity_score))
+
+## Generating sentiment scores for May
+may_textblob = TextBlob(str(may_tweets_no_urls))
+
+may_polarity_score = may_textblob.sentiment.polarity
+may_subjectivity_score = may_textblob.sentiment.subjectivity
+
+print("The May polarity score is: {}".format(may_polarity_score))
+print("The May polarity score is: {}".format(may_subjectivity_score))
+
+
+
+
+
+
+
