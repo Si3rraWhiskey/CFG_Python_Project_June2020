@@ -16,14 +16,16 @@ try:
     print("Authentication OK")
 except:
     print("Error during authentication")
-search_words = 'travel' or 'holiday' or 'travel abroad' and 'covid' or 'pandemic' or 'covid-19' or 'rona' or 'coronavirus'
+
+search_words = 'travel' or 'holiday' or 'travel abroad' \
+               and 'covid' or 'pandemic' or 'covid-19' or 'rona' or 'coronavirus'
+
 lang='en'
 result_type='mixed'
+# geocode = "51.5074,0.1278,100km"
 
 def remove_url(txt):
     return " ".join(re.sub("([^0-9A-Za-z \t])|(\w+:\/\/\S+)", "", txt).split())
-## geocode = "51.5074,0.1278,100km" - geocode currently doesn't work - causes no tweets to be returned. this value here should work for London
-# Maybe take out these variables for running them for different months
 
 january_tweets = tw.Cursor(api.search,
               q=search_words,
@@ -31,9 +33,10 @@ january_tweets = tw.Cursor(api.search,
               lang=lang,
               result_type=result_type,
               since="2020-01-02",
-              max="2020-02-01").items(200)
+              max="2020-02-01").items(30)
 
 jan_tweets_no_urls = [remove_url(tweet.text) for tweet in january_tweets]
+
 with open ('tweets.txt', 'a') as tweets_file:
     for single_tweet in jan_tweets_no_urls:
         tweets_file.write("%s\n" % single_tweet)
@@ -44,7 +47,7 @@ february_tweets = tw.Cursor(api.search,
               lang=lang,
               result_type=result_type,
               since="2020-02-02",
-              max="2020-03-01").items(200)
+              max="2020-03-01").items(30)
 
 feb_tweets_no_urls = [remove_url(tweet.text) for tweet in february_tweets]
 
@@ -58,7 +61,7 @@ march_tweets = tw.Cursor(api.search,
               lang=lang,
               result_type=result_type,
               since="2020-03-02",
-              max="2020-04-01").items(200)
+              max="2020-04-01").items(30)
 
 mar_tweets_no_urls = [remove_url(tweet.text) for tweet in march_tweets]
 with open ('tweets.txt', 'a') as tweets_file:
@@ -71,7 +74,7 @@ april_tweets = tw.Cursor(api.search,
               lang=lang,
               result_type=result_type,
               since="2020-04-02",
-              max="2020-05-01").items(200)
+              max="2020-05-01").items(30)
 
 apr_tweets_no_urls = [remove_url(tweet.text) for tweet in april_tweets]
 with open ('tweets.txt', 'a') as tweets_file:
@@ -84,7 +87,7 @@ may_tweets = tw.Cursor(api.search,
               lang=lang,
               result_type=result_type,
               since="2020-05-02",
-              max="20-06-01").items(200)
+              max="20-06-01").items(30)
 
 may_tweets_no_urls = [remove_url(tweet.text) for tweet in may_tweets]
 with open ('tweets.txt', 'a') as tweets_file:
@@ -100,7 +103,7 @@ jan_polarity_score = jan_textblob.sentiment.polarity
 jan_subjectivity_score = jan_textblob.sentiment.subjectivity
 
 print("the January polarity score is: {}".format(jan_polarity_score))
-print("the January subjectivity_score is: {}.".format(jan_subjectivity_score))
+print("the January subjectivity score is: {}.".format(jan_subjectivity_score))
 
 ## Generating sentiment scores for February
 feb_textblob = TextBlob(str(feb_tweets_no_urls))
@@ -136,7 +139,23 @@ may_polarity_score = may_textblob.sentiment.polarity
 may_subjectivity_score = may_textblob.sentiment.subjectivity
 
 print("The May polarity score is: {}".format(may_polarity_score))
-print("The May polarity score is: {}".format(may_subjectivity_score))
+print("The May subjectivity score is: {}".format(may_subjectivity_score))
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+polarity_scores = [jan_polarity_score, feb_polarity_score, mar_polarity_score, apr_polarity_score, may_polarity_score]
+subjectivity_scores = [jan_subjectivity_score, feb_subjectivity_score, mar_subjectivity_score,
+                       apr_subjectivity_score, may_subjectivity_score]
+months = ['january', 'february', 'march', 'april', 'may']
+plt.plot(months, polarity_scores, label = 'Polarity Scores')
+plt.plot(months, subjectivity_scores, label = 'Subjectivity Scores')
+plt.xlabel('Months')
+plt.ylabel('Scores')
+plt.title('Polarity and Subjectivity Scores of Tweets on the Topic of Travel during COVID-19')
+plt.legend()
+plt.show()
 
 
 
